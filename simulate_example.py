@@ -12,20 +12,21 @@ from functions import cosine_HA
 import matplotlib
 import matplotlib.pyplot as plt
 
-n = 10
+n = 15
 tol = 1e-10
 
 # ----------------------- Data generation ------------------------
 
 # Generating signature matrix and exposures
-signature1 = np.array([2]*2 + [1]*2 + [0]*2) / 6
-signature2 = np.array([0]*3 + [2]*3) / 6
+signature1 = np.array([2]*2 + [1]*2 + [0]*2)/6
+signature2 = np.array([0]*3 + [2]*3)/6
 signature_mat = np.vstack((signature1, signature2))
-total_n = 3 * n
-exposures = np.array([180, 20] * n + [100, 100] * n + [20, 180] * n).reshape(total_n, 2)
-XMat1 = np.random.poisson(180 * signature1 + 20 * signature2, size=(n, 6))
-XMat2 = np.random.poisson(100 * signature1 + 100 * signature2, size=(n, 6))
-XMat3 = np.random.poisson(20 * signature1 + 180 * signature2, size=(n, 6))
+total_n = 3*n
+exposures = np.array([190, 10]*n + [100,100]*n+ [20, 180]*n)
+
+XMat1 = np.random.poisson(190*signature1 + 10*signature2, size = (n,6))
+XMat2 = np.random.poisson(100*signature1 + 100*signature2, size = (n,6))
+XMat3 = np.random.poisson(20*signature1 + 180*signature2, size = (n,6))
 XMat = np.concatenate((XMat1, XMat2, XMat3))
 
 # -------------------------- CVX NMF ------------------------------
@@ -56,7 +57,7 @@ XMat_pd = XMat_pd.T
 start = timeit.default_timer()
 
 # Applying NMF
-signatures_nmf, exposures_nmf, loss_nmf, _, _, n_iter_nmf = NMF_mult_tol(XMat_pd.to_numpy(), 2, tol=tol, mse=True, G_0 = dec.T)
+signatures_nmf, exposures_nmf, loss_nmf, _, _, n_iter_nmf = NMF_mult_tol(XMat_pd.to_numpy(), 2, tol=tol, mse=True, objective_type = "frobenius", G_0 = dec.T)
 
 # Calculating signatures and exposures for NMF
 diagonals_nmf = signatures_nmf.sum(axis=0)
@@ -111,7 +112,7 @@ matplotlib.rcParams.update({'font.size': 22})
 fig1, axs1 = plt.subplots(2,2, width_ratios = [1.7,1])
 plt.subplots_adjust(right=0.8)
 
-axs1[0,0].plot(list(range(1,total_n+1)), [180]*n + [100]*n + [20]*n, '-o', color = "#c8ae95", label = "True", linewidth=4)
+axs1[0,0].plot(list(range(1,total_n+1)), [190]*n + [100]*n + [20]*n, '-o', color = "#c8ae95", label = "True", linewidth=4)
 axs1[0,0].plot(list(range(1,total_n+1)), exposures_nmf[:,0], '-o', color = "#a3a09e", label = "NMF", linewidth=4)
 axs1[0,0].plot(list(range(1,total_n+1)), exposures_AE[0,:], '-o', color = "#434961", label = "AE-NMF", linewidth=4)
 axs1[0,0].plot(list(range(1,total_n+1)), exposures_cvx[:,0], ':o', color = "#d1b2d2", label = "C-NMF", linewidth=4)
@@ -119,7 +120,7 @@ axs1[0,0].plot(list(range(1,total_n+1)), exposures_cvx[:,0], ':o', color = "#d1b
 axs1[0,0].set_xticklabels([])
 axs1[0,0].xaxis.set_ticks_position('none') 
 
-axs1[1,0].plot(list(range(1,total_n+1)), [20]*n + [100]*n + [180]*n, '-o', color = "#c8ae95", label = "True", linewidth=4)
+axs1[1,0].plot(list(range(1,total_n+1)), [10]*n + [100]*n + [180]*n, '-o', color = "#c8ae95", label = "True", linewidth=4)
 axs1[1,0].plot(list(range(1,total_n+1)), exposures_nmf[:,1], '-o', color = "#a3a09e", label = "NMF", linewidth=4)
 axs1[1,0].plot(list(range(1,total_n+1)), exposures_AE[1,:], '-o', color = "#434961", label = "AE-NMF", linewidth=4)
 axs1[1,0].plot(list(range(1,total_n+1)), exposures_cvx[:,1], ':o', color = "#d1b2d2", label = "C-NMF", linewidth=4)
